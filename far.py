@@ -4,7 +4,7 @@
 #
 # Author: R.F. Smith <rsmith@xs4all.nl>
 # Created: 2018-02-27 23:38:17 +0100
-# Last modified: 2018-02-28 21:32:31 +0100
+# Last modified: 2018-02-28 23:28:33 +0100
 #
 # To the extent possible under law, R.F. Smith has waived all copyright and
 # related or neighboring rights to far.py. This work is published
@@ -30,6 +30,8 @@ class FarUI(tk.Tk):
         self.rootdir = tk.StringVar()
         self.findname = tk.StringVar()
         self.replacement = tk.StringVar()
+        self.progress = tk.StringVar()
+        self.progress.set('None')
         self.create_window()
 
     def create_window(self):
@@ -41,42 +43,48 @@ class FarUI(tk.Tk):
         # General commands and bindings
         self.bind_all('q', self.quit_cb)
         self.wm_title('Find and Replace v' + __version__)
-        self.columnconfigure(1, weight=1)
+        self.columnconfigure(4, weight=1)
         self.rowconfigure(4, weight=1)
         #self.resizable(False, False)
         # First row
         ftxt = ttk.Label(self, text='Find:')
         ftxt.grid(row=0, column=0, sticky='w')
         fe = ttk.Entry(self, justify='left', textvariable=self.findname)
-        fe.grid(row=0, column=1, sticky='ew')
+        fe.grid(row=0, column=1, columnspan=4, sticky='ew')
         self.find = fe
         # Second row
         treetxt = ttk.Label(self, text='In tree:')
         treetxt.grid(row=1, column=0, sticky='w')
-        te = ttk.Entry(self, justify='left', textvariable=self.rootdir, state=tk.DISABLED)
-        te.grid(row=1, column=1, sticky='ew')
+        te = ttk.Label(self, justify='left', textvariable=self.rootdir)
+        te.grid(row=1, column=1, columnspan=4, sticky='ew')
         tb = ttk.Button(self, text="browse...", command=self.tree_cb)
-        tb.grid(row=1, column=2, columnspan=2, sticky='ew')
+        tb.grid(row=1, column=5, columnspan=2, sticky='ew')
         self.tree = te
         # Third row
         reptxt = ttk.Label(self, text='Replace with:')
         reptxt.grid(row=2, column=0, sticky='w')
-        re = ttk.Entry(self, justify='left', textvariable=self.replacement, state=tk.DISABLED)
-        re.grid(row=2, column=1, sticky='ew')
+        re = ttk.Label(self, justify='left', textvariable=self.replacement)
+        re.grid(row=2, column=1, columnspan=4, sticky='ew')
         rb = ttk.Button(self, text="browse...", command=self.replace_cb)
-        rb.grid(row=2, column=2, columnspan=2, sticky='ew')
+        rb.grid(row=2, column=5, columnspan=2, sticky='ew')
         self.replace = re
         # Fourth row
         run = ttk.Button(self, text="run", command=self.start_replace)
-        run.grid(row=3, column=0, sticky='w')
-        qb = ttk.Button(self, text="quit", command=self.destroy)
-        qb.grid(row=3, column=1, sticky='w')
+        run.grid(row=3, column=0, sticky='ew')
+        stop = ttk.Button(self, text="stop", command=self.stop_replace, state=tk.DISABLED)
+        stop.grid(row=3, column=1, sticky='w')
         self.runbutton = run
+        self.stopbutton = stop
+        qb = ttk.Button(self, text="quit", command=self.destroy)
+        qb.grid(row=3, column=2, sticky='w')
+        ttk.Label(self, justify='left', text='processing:').grid(row=3, column=3, sticky='w')
+        progress = ttk.Label(self, justify='left', textvariable=self.progress)
+        progress.grid(row=3, column=4, columnspan=2, sticky='ew')
         # Fifth row
         message = tk.Text(self, height=4)
-        message.grid(row=4, column=0, columnspan=3, sticky='nsew')
+        message.grid(row=4, column=0, columnspan=6, sticky='nsew')
         s = ttk.Scrollbar(self, command=message.yview)
-        s.grid(row=4, column=3, sticky='nse')
+        s.grid(row=4, column=6, sticky='nse')
         message['yscrollcommand'] = s.set
         self.message = message
 
@@ -116,14 +124,18 @@ class FarUI(tk.Tk):
         self.message.delete('1.0', tk.END)
         self.message.insert(tk.END, 'Starting replacement\n')
         self.runbutton['state'] = tk.DISABLED
+        self.stopbutton['state'] = tk.NORMAL
         self.finditer = os.walk(rootdir)
         self.after(1, self.replace_step)
 
     def replace_step(self):
+        if not self.running:
+            return
         try:
             path, _, files = self.finditer.send(None)
             rootlen = len(self.rootdir.get())+1
             if len(path) > rootlen and path[rootlen] != '.':
+                self.progress.set(path[rootlen:])
                 filename = self.findname.get()
                 if filename in files:
                     source = self.replacement.get()
@@ -135,8 +147,18 @@ class FarUI(tk.Tk):
             self.after(1, self.replace_step)
         except StopIteration:
             self.running = False
+            self.finditer = None
             self.runbutton['state'] = tk.NORMAL
             self.message.insert(tk.END, 'Finished replacement\n')
+            self.progress.set('None')
+
+    def stop_replace(self):
+        self.running = False
+        self.finditer = None
+        self.runbutton['state'] = tk.NORMAL
+        self.stopbutton['state'] = tk.DISABLED
+        self.message.insert(tk.END, 'Stopped replacement\n')
+        self.progress.set('None')
 
 
 def main():
