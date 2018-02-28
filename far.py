@@ -4,7 +4,7 @@
 #
 # Author: R.F. Smith <rsmith@xs4all.nl>
 # Created: 2018-02-27 23:38:17 +0100
-# Last modified: 2018-02-28 21:31:13 +0100
+# Last modified: 2018-02-28 21:32:31 +0100
 #
 # To the extent possible under law, R.F. Smith has waived all copyright and
 # related or neighboring rights to far.py. This work is published
@@ -15,7 +15,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter.font import nametofont
 import os
-import shutil
+# import shutil
 import sys
 
 __version__ = '0.1'
@@ -117,7 +117,7 @@ class FarUI(tk.Tk):
         self.message.insert(tk.END, 'Starting replacement\n')
         self.runbutton['state'] = tk.DISABLED
         self.finditer = os.walk(rootdir)
-        self.after(5, self.replace_step)
+        self.after(1, self.replace_step)
 
     def replace_step(self):
         try:
@@ -132,7 +132,7 @@ class FarUI(tk.Tk):
                     self.message.insert(tk.END, "Replacing '{}' by '{}'\n".format(dest, source))
                 # else:
                     # self.message.insert(tk.END, "Nothing found in '{}'.\n".format(path))
-            self.after(5, self.replace_step)
+            self.after(1, self.replace_step)
         except StopIteration:
             self.running = False
             self.runbutton['state'] = tk.NORMAL
