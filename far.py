@@ -4,7 +4,7 @@
 #
 # Author: R.F. Smith <rsmith@xs4all.nl>
 # Created: 2018-02-27 23:38:17 +0100
-# Last modified: 2018-02-28 23:28:33 +0100
+# Last modified: 2018-02-28 23:30:53 +0100
 #
 # To the extent possible under law, R.F. Smith has waived all copyright and
 # related or neighboring rights to far.py. This work is published
@@ -146,19 +146,16 @@ class FarUI(tk.Tk):
                     # self.message.insert(tk.END, "Nothing found in '{}'.\n".format(path))
             self.after(1, self.replace_step)
         except StopIteration:
-            self.running = False
-            self.finditer = None
-            self.runbutton['state'] = tk.NORMAL
+            self.stop_replace()
             self.message.insert(tk.END, 'Finished replacement\n')
-            self.progress.set('None')
 
     def stop_replace(self):
         self.running = False
         self.finditer = None
         self.runbutton['state'] = tk.NORMAL
         self.stopbutton['state'] = tk.DISABLED
-        self.message.insert(tk.END, 'Stopped replacement\n')
         self.progress.set('None')
+        self.message.insert(tk.END, 'Stopped replacement\n')
 
 
 def main():
