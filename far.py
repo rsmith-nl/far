@@ -4,7 +4,7 @@
 #
 # Author: R.F. Smith <rsmith@xs4all.nl>
 # Created: 2018-02-27 23:38:17 +0100
-# Last modified: 2018-02-28 23:30:53 +0100
+# Last modified: 2018-03-01 21:53:39 +0100
 #
 # To the extent possible under law, R.F. Smith has waived all copyright and
 # related or neighboring rights to far.py. This work is published
@@ -15,7 +15,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter.font import nametofont
 import os
-# import shutil
+import shutil
 import sys
 
 __version__ = '0.1'
@@ -45,7 +45,6 @@ class FarUI(tk.Tk):
         self.wm_title('Find and Replace v' + __version__)
         self.columnconfigure(4, weight=1)
         self.rowconfigure(4, weight=1)
-        #self.resizable(False, False)
         # First row
         ftxt = ttk.Label(self, text='Find:')
         ftxt.grid(row=0, column=0, sticky='w')
@@ -69,9 +68,9 @@ class FarUI(tk.Tk):
         rb.grid(row=2, column=5, columnspan=2, sticky='ew')
         self.replace = re
         # Fourth row
-        run = ttk.Button(self, text="run", command=self.start_replace)
+        run = ttk.Button(self, text="run", command=self.start_replace_cb)
         run.grid(row=3, column=0, sticky='ew')
-        stop = ttk.Button(self, text="stop", command=self.stop_replace, state=tk.DISABLED)
+        stop = ttk.Button(self, text="stop", command=self.stop_replace_cb, state=tk.DISABLED)
         stop.grid(row=3, column=1, sticky='w')
         self.runbutton = run
         self.stopbutton = stop
@@ -112,7 +111,7 @@ class FarUI(tk.Tk):
         )
         self.replacement.set(replacement)
 
-    def start_replace(self):
+    def start_replace_cb(self):
         rootdir = self.rootdir.get()
         filename = self.findname.get()
         replacement = self.replacement.get()
@@ -138,24 +137,28 @@ class FarUI(tk.Tk):
                 self.progress.set(path[rootlen:])
                 filename = self.findname.get()
                 if filename in files:
-                    source = self.replacement.get()
-                    dest = path + os.sep + filename
-                    # shutil.copy2(source, dest)
-                    self.message.insert(tk.END, "Replacing '{}' by '{}'\n".format(dest, source))
-                # else:
-                    # self.message.insert(tk.END, "Nothing found in '{}'.\n".format(path))
+                    original = path + os.sep + filename
+                    replacement = self.replacement.get()
+                    repfile = os.path.basename(replacement)
+                    dest = path + os.sep + repfile
+                    os.remove(original)
+                    shutil.copy2(replacement, dest)
+                    self.message.insert(tk.END, "Replaced '{}' by '{}'\n".format(original, dest))
             self.after(1, self.replace_step)
         except StopIteration:
-            self.stop_replace()
-            self.message.insert(tk.END, 'Finished replacement\n')
+            self.stop()
+            self.message.insert(tk.END, 'Finished replacement.\n')
 
-    def stop_replace(self):
+    def stop(self):
         self.running = False
         self.finditer = None
         self.runbutton['state'] = tk.NORMAL
         self.stopbutton['state'] = tk.DISABLED
         self.progress.set('None')
-        self.message.insert(tk.END, 'Stopped replacement\n')
+
+    def stop_replace_cb(self):
+        self.stop()
+        self.message.insert(tk.END, 'Replacement stopped by user.\n')
 
 
 def main():
