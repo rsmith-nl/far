@@ -4,7 +4,7 @@
 #
 # Author: R.F. Smith <rsmith@xs4all.nl>
 # Created: 2018-02-27 23:38:17 +0100
-# Last modified: 2018-03-01 21:53:39 +0100
+# Last modified: 2018-03-04 00:08:53 +0100
 #
 # To the extent possible under law, R.F. Smith has waived all copyright and
 # related or neighboring rights to far.py. This work is published
@@ -132,6 +132,10 @@ class FarUI(tk.Tk):
             return
         try:
             path, _, files = self.finditer.send(None)
+            # Skip known revision control systems directories.
+            for skip in ('.git', '.hg', '.svn', '.cvs', '.rcs'):
+                if skip in path:
+                    return
             rootlen = len(self.rootdir.get())+1
             if len(path) > rootlen and path[rootlen] != '.':
                 self.progress.set(path[rootlen:])
@@ -141,9 +145,10 @@ class FarUI(tk.Tk):
                     replacement = self.replacement.get()
                     repfile = os.path.basename(replacement)
                     dest = path + os.sep + repfile
+                    self.message.insert(tk.END, "Removing '{}'\n".format(original))
                     os.remove(original)
+                    self.message.insert(tk.END, "Copying '{}' to '{}'\n".format(replacement, dest))
                     shutil.copy2(replacement, dest)
-                    self.message.insert(tk.END, "Replaced '{}' by '{}'\n".format(original, dest))
             self.after(1, self.replace_step)
         except StopIteration:
             self.stop()
