@@ -4,32 +4,39 @@
 #
 # Author: R.F. Smith <rsmith@xs4all.nl>
 # Created: 2018-02-27 23:38:17 +0100
-# Last modified: 2018-03-04 00:16:17 +0100
+# Last modified: 2018-03-04 00:44:41 +0100
 #
 # To the extent possible under law, R.F. Smith has waived all copyright and
 # related or neighboring rights to far.py. This work is published
 # from the Netherlands. See http://creativecommons.org/publicdomain/zero/1.0/
 
-import tkinter as tk
-from tkinter import ttk
 from tkinter import filedialog
+from tkinter import ttk
 from tkinter.font import nametofont
+import argparse
 import os
 import shutil
 import sys
+import tkinter as tk
 
 __version__ = '0.1'
 
 
 class FarUI(tk.Tk):
 
-    def __init__(self):
+    def __init__(self, rootdir, findname, replacement):
         tk.Tk.__init__(self, None)
         self.running = False
         self.finditer = None
         self.rootdir = tk.StringVar()
+        if rootdir:
+            self.rootdir.set(rootdir)
         self.findname = tk.StringVar()
+        if findname:
+            self.findname.set(findname)
         self.replacement = tk.StringVar()
+        if replacement:
+            self.replacement.set(replacement)
         self.progress = tk.StringVar()
         self.progress.set('None')
         self.create_window()
@@ -169,12 +176,32 @@ class FarUI(tk.Tk):
 
 def main():
     """Main entry point for far.py"""
-    root = FarUI()
+    # Parse the arguments.
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        '-d', '--rootdir',
+        type=str, default=os.getcwd(),
+        help='Directory to start looking in.')
+    parser.add_argument(
+        '-f', '--findname',
+        type=str, default='',
+        help='Name of the file to find.')
+    parser.add_argument(
+        '-r', '--replacement',
+        type=str, default='',
+        help='Path of the replacement file.')
+    parser.add_argument(
+        '-v', '--version', action='version', version=__version__)
+    args = parser.parse_args(sys.argv[1:])
+    if not args.rootdir.startswith(os.sep):
+        args.rootdir = os.getcwd() + os.sep + args.rootdir
+    # Create the UI.
+    root = FarUI(args.rootdir, args.findname, args.replacement)
     root.mainloop()
 
 
 if __name__ == '__main__':
-    # Detach from terminal
+    # Detach from the terminal on POSIX systems.
     if os.name == 'posix':
         if os.fork():
             sys.exit()

@@ -3,7 +3,7 @@
 #
 # Author: R.F. Smith <rsmith@xs4all.nl>
 # Created: 2018-03-03 21:56:24 +0100
-# Last modified: 2018-03-04 00:18:20 +0100
+# Last modified: 2018-03-04 00:40:22 +0100
 .PHONY: try help
 
 help::
@@ -22,7 +22,7 @@ test: clean
 	do \
 		touch test/gnarf/$$f test/bar/$$f test/baz/$$f ; \
 	done
-	python3 far.py
+	python3 far.py -d test -f foo.txt
 
 clean::
 	rm -rf test
