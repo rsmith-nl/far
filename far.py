@@ -4,7 +4,7 @@
 #
 # Author: R.F. Smith <rsmith@xs4all.nl>
 # Created: 2018-02-27 23:38:17 +0100
-# Last modified: 2018-03-04 00:08:53 +0100
+# Last modified: 2018-03-04 00:16:17 +0100
 #
 # To the extent possible under law, R.F. Smith has waived all copyright and
 # related or neighboring rights to far.py. This work is published
@@ -76,7 +76,7 @@ class FarUI(tk.Tk):
         self.stopbutton = stop
         qb = ttk.Button(self, text="quit", command=self.destroy)
         qb.grid(row=3, column=2, sticky='w')
-        ttk.Label(self, justify='left', text='processing:').grid(row=3, column=3, sticky='w')
+        ttk.Label(self, justify='left', text='Progress: ').grid(row=3, column=3, sticky='w')
         progress = ttk.Label(self, justify='left', textvariable=self.progress)
         progress.grid(row=3, column=4, columnspan=2, sticky='ew')
         # Fifth row
@@ -132,13 +132,14 @@ class FarUI(tk.Tk):
             return
         try:
             path, _, files = self.finditer.send(None)
+            rootlen = len(self.rootdir.get())+1
             # Skip known revision control systems directories.
             for skip in ('.git', '.hg', '.svn', '.cvs', '.rcs'):
                 if skip in path:
+                    self.progress.set('skipping ' + path[rootlen:])
                     return
-            rootlen = len(self.rootdir.get())+1
             if len(path) > rootlen and path[rootlen] != '.':
-                self.progress.set(path[rootlen:])
+                self.progress.set('processing ' + path[rootlen:])
                 filename = self.findname.get()
                 if filename in files:
                     original = path + os.sep + filename
