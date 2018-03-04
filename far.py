@@ -4,7 +4,7 @@
 #
 # Author: R.F. Smith <rsmith@xs4all.nl>
 # Created: 2018-02-27 23:38:17 +0100
-# Last modified: 2018-03-04 00:44:41 +0100
+# Last modified: 2018-03-04 17:55:23 +0100
 #
 # To the extent possible under law, R.F. Smith has waived all copyright and
 # related or neighboring rights to far.py. This work is published
@@ -24,22 +24,14 @@ __version__ = '0.1'
 
 class FarUI(tk.Tk):
 
-    def __init__(self, rootdir, findname, replacement):
+    def __init__(self, rootdir='', findname='', replacement=''):
         tk.Tk.__init__(self, None)
         self.running = False
         self.finditer = None
-        self.rootdir = tk.StringVar()
-        if rootdir:
-            self.rootdir.set(rootdir)
-        self.findname = tk.StringVar()
-        if findname:
-            self.findname.set(findname)
-        self.replacement = tk.StringVar()
-        if replacement:
-            self.replacement.set(replacement)
-        self.progress = tk.StringVar()
-        self.progress.set('None')
         self.create_window()
+        self.tree['text'] = rootdir
+        self.find.insert(0, findname)
+        self.replace['text'] = replacement
 
     def create_window(self):
         """Create the GUI"""
@@ -55,13 +47,13 @@ class FarUI(tk.Tk):
         # First row
         ftxt = ttk.Label(self, text='Find:')
         ftxt.grid(row=0, column=0, sticky='w')
-        fe = ttk.Entry(self, justify='left', textvariable=self.findname)
+        fe = ttk.Entry(self, justify='left')
         fe.grid(row=0, column=1, columnspan=4, sticky='ew')
         self.find = fe
         # Second row
         treetxt = ttk.Label(self, text='In tree:')
         treetxt.grid(row=1, column=0, sticky='w')
-        te = ttk.Label(self, justify='left', textvariable=self.rootdir)
+        te = ttk.Label(self, justify='left')
         te.grid(row=1, column=1, columnspan=4, sticky='ew')
         tb = ttk.Button(self, text="browse...", command=self.tree_cb)
         tb.grid(row=1, column=5, columnspan=2, sticky='ew')
@@ -69,7 +61,7 @@ class FarUI(tk.Tk):
         # Third row
         reptxt = ttk.Label(self, text='Replace with:')
         reptxt.grid(row=2, column=0, sticky='w')
-        re = ttk.Label(self, justify='left', textvariable=self.replacement)
+        re = ttk.Label(self, justify='left')
         re.grid(row=2, column=1, columnspan=4, sticky='ew')
         rb = ttk.Button(self, text="browse...", command=self.replace_cb)
         rb.grid(row=2, column=5, columnspan=2, sticky='ew')
@@ -84,8 +76,9 @@ class FarUI(tk.Tk):
         qb = ttk.Button(self, text="quit", command=self.destroy)
         qb.grid(row=3, column=2, sticky='w')
         ttk.Label(self, justify='left', text='Progress: ').grid(row=3, column=3, sticky='w')
-        progress = ttk.Label(self, justify='left', textvariable=self.progress)
+        progress = ttk.Label(self, justify='left', text='None')
         progress.grid(row=3, column=4, columnspan=2, sticky='ew')
+        self.progress = progress
         # Fifth row
         message = tk.Text(self, height=4)
         message.grid(row=4, column=0, columnspan=6, sticky='nsew')
@@ -109,19 +102,19 @@ class FarUI(tk.Tk):
             title='Directory where to start looking',
             mustexist=True
         )
-        self.rootdir.set(rootdir)
+        self.tree['text'] = rootdir
 
     def replace_cb(self):
         replacement = filedialog.askopenfilename(
             parent=self,
             title='Replacement file'
         )
-        self.replacement.set(replacement)
+        self.replace['text'] = replacement
 
     def start_replace_cb(self):
-        rootdir = self.rootdir.get()
-        filename = self.findname.get()
-        replacement = self.replacement.get()
+        rootdir = self.tree['text']
+        filename = self.find.get()
+        replacement = self.replace['text']
         if self.running or not rootdir or not filename or not replacement:
             self.message.delete('1.0', tk.END)
             self.message.insert(tk.END, 'Missing data!')
@@ -139,18 +132,18 @@ class FarUI(tk.Tk):
             return
         try:
             path, _, files = self.finditer.send(None)
-            rootlen = len(self.rootdir.get())+1
+            rootlen = len(self.tree['text'])+1
             # Skip known revision control systems directories.
             for skip in ('.git', '.hg', '.svn', '.cvs', '.rcs'):
                 if skip in path:
-                    self.progress.set('skipping ' + path[rootlen:])
+                    self.progress['text'] = 'skipping ' + path[rootlen:]
                     return
             if len(path) > rootlen and path[rootlen] != '.':
-                self.progress.set('processing ' + path[rootlen:])
-                filename = self.findname.get()
+                self.progress['text'] = 'processing ' + path[rootlen:]
+                filename = self.find.get()
                 if filename in files:
                     original = path + os.sep + filename
-                    replacement = self.replacement.get()
+                    replacement = self.replace['text']
                     repfile = os.path.basename(replacement)
                     dest = path + os.sep + repfile
                     self.message.insert(tk.END, "Removing '{}'\n".format(original))
@@ -167,7 +160,7 @@ class FarUI(tk.Tk):
         self.finditer = None
         self.runbutton['state'] = tk.NORMAL
         self.stopbutton['state'] = tk.DISABLED
-        self.progress.set('None')
+        self.progress['text'] = 'None'
 
     def stop_replace_cb(self):
         self.stop()
