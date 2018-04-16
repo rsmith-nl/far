@@ -5,7 +5,7 @@ Find and Replace
 :tags: python3
 :author: Roland Smith
 
-.. Last modified: 2018-03-11 16:52:18 +0100
+.. Last modified: 2018-04-17T00:12:27+0200
 
 Introduction
 ------------
@@ -33,6 +33,4 @@ installation. Create a shortcut to it on your desktop.
 License
 -------
 
-To the extent possible under law, R.F. Smith has waived all copyright and
-related or neighboring rights to ``far.py``. This work is published
-from the Netherlands. See http://creativecommons.org/publicdomain/zero/1.0/
+MIT. See LICENSE.txt
