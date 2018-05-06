@@ -95,17 +95,12 @@ class FarUI(tk.Tk):
 
     def tree_cb(self):
         rootdir = filedialog.askdirectory(
-            parent=self,
-            title='Directory where to start looking',
-            mustexist=True
+            parent=self, title='Directory where to start looking', mustexist=True
         )
         self.tree['text'] = rootdir
 
     def replace_cb(self):
-        replacement = filedialog.askopenfilename(
-            parent=self,
-            title='Replacement file'
-        )
+        replacement = filedialog.askopenfilename(parent=self, title='Replacement file')
         self.replace['text'] = replacement
 
     def start_replace_cb(self):
@@ -129,7 +124,7 @@ class FarUI(tk.Tk):
             return
         try:
             path, _, files = self.finditer.send(None)
-            rootlen = len(self.tree['text'])+1
+            rootlen = len(self.tree['text']) + 1
             # Skip known revision control systems directories.
             for skip in ('.git', '.hg', '.svn', '.cvs', '.rcs'):
                 if skip in path:
@@ -169,19 +164,13 @@ def main():
     # Parse the arguments.
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        '-d', '--rootdir',
-        type=str, default=os.getcwd(),
-        help='Directory to start looking in.')
+        '-d', '--rootdir', type=str, default=os.getcwd(), help='Directory to start looking in.'
+    )
+    parser.add_argument('-f', '--findname', type=str, default='', help='Name of the file to find.')
     parser.add_argument(
-        '-f', '--findname',
-        type=str, default='',
-        help='Name of the file to find.')
-    parser.add_argument(
-        '-r', '--replacement',
-        type=str, default='',
-        help='Path of the replacement file.')
-    parser.add_argument(
-        '-v', '--version', action='version', version=__version__)
+        '-r', '--replacement', type=str, default='', help='Path of the replacement file.'
+    )
+    parser.add_argument('-v', '--version', action='version', version=__version__)
     args = parser.parse_args(sys.argv[1:])
     if not args.rootdir.startswith(os.sep):
         args.rootdir = os.getcwd() + os.sep + args.rootdir
