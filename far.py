@@ -16,7 +16,7 @@ import shutil
 import sys
 import tkinter as tk
 
-__version__ = '0.1'
+__version__ = "2019.07.25"
 
 
 class FarUI(tk.Tk):
