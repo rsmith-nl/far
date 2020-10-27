@@ -1,11 +1,11 @@
 Find and Replace
 ################
 
-:date: 2018-03-11
+:date: 2020-10-27
 :tags: python3
 :author: Roland Smith
 
-.. Last modified: 2018-04-17T00:12:27+0200
+.. Last modified: 2020-10-27T18:21:58+0100
 
 Introduction
 ------------
@@ -18,16 +18,24 @@ program available on POSIX systems.
 Requirements
 ------------
 
-* Python 3
+* Python 3.6+
 * Tkinter
 
 (Most Python distributions for ms-windows include tkinter.)
 
+
 Installation
 ------------
 
-On ms-windows, copy ``far.py`` to the ``Scripts`` directory of your Python
-installation. Create a shortcut to it on your desktop.
+To install it for the local user, run::
+
+    python setup.py install
+
+This will install it in the user path for Python scripts.
+For POSIX operating systems this is ususally ``~/.local/bin``.
+For ms-windows this is the ``Scripts`` directory of your Python installation
+or another local directory.
+Make sure that this directory is in your ``$PATH`` environment variable.
 
 
 License
