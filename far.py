@@ -5,7 +5,7 @@
 # Copyright © 2018 R.F. Smith <rsmith@xs4all.nl>.
 # SPDX-License-Identifier: MIT
 # Created: 2018-02-27T23:38:17+0100
-# Last modified: 2019-07-25T21:59:05+0200
+# Last modified: 2020-12-03T01:02:05+0100
 
 from tkinter import filedialog
 from tkinter import ttk
@@ -16,7 +16,7 @@ import shutil
 import sys
 import tkinter as tk
 
-__version__ = "2019.07.25"
+__version__ = "2020.12.03"
 
 
 class FarUI(tk.Tk):
@@ -35,8 +35,7 @@ class FarUI(tk.Tk):
         default_font = nametofont("TkDefaultFont")
         default_font.configure(size=12)
         self.option_add("*Font", default_font)
-        # General commands and bindings
-        self.bind_all("q", self.quit_cb)
+        # General commands
         self.wm_title("Find and Replace v" + __version__)
         self.columnconfigure(4, weight=1)
         self.rowconfigure(4, weight=1)
@@ -86,15 +85,6 @@ class FarUI(tk.Tk):
         s.grid(row=4, column=6, sticky="nse")
         message["yscrollcommand"] = s.set
         self.message = message
-
-    def quit_cb(self, event):
-        """
-        Callback to handle quitting.
-
-        This is necessary since the quit method does not take arguments.
-        """
-        self.running = False
-        self.destroy()
 
     def tree_cb(self):
         rootdir = filedialog.askdirectory(
