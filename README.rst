@@ -5,7 +5,10 @@ Find and Replace
 :tags: python3
 :author: Roland Smith
 
-.. Last modified: 2020-10-27T18:21:58+0100
+.. Last modified: 2022-01-29T22:25:32+0100
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
 
 Introduction
 ------------
